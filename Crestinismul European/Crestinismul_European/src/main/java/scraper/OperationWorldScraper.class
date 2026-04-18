@@ -1,0 +1,57 @@
+// Source code is decompiled from a .class file using FernFlower decompiler (from Intellij IDEA).
+package scraper;
+
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+public class OperationWorldScraper {
+   public OperationWorldScraper() {
+   }
+
+   public static void main(String[] args) {
+      String url = "https://operationworld.org/locations/europe/";
+      String output = "europe_operation_world.csv";
+
+      try {
+         PrintWriter writer = new PrintWriter(new FileWriter(output));
+
+         try {
+            writer.println("Country,Population,% Evangelical");
+            Document doc = Jsoup.connect(url).userAgent("Mozilla/5.0").timeout(10000).get();
+            Elements rows = doc.select("table tr");
+            int count = 0;
+
+            for(Element row : rows) {
+               Elements cols = row.select("td");
+               if (cols.size() >= 3) {
+                  String country = ((Element)cols.get(0)).text();
+                  String population = ((Element)cols.get(1)).text();
+                  String evangelical = ((Element)cols.get(2)).text();
+                  writer.println(country + "," + population + "," + evangelical);
+                  ++count;
+               }
+            }
+
+            System.out.println("CSV generat: " + output);
+            System.out.println("Tari extrase: " + count);
+         } catch (Throwable var14) {
+            try {
+               writer.close();
+            } catch (Throwable var13) {
+               var14.addSuppressed(var13);
+            }
+
+            throw var14;
+         }
+
+         writer.close();
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
+
+   }
+}
